@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>通信退勤前チェックリスト</title>
+    
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        
+        h1 { 
+            color: #1e90ff; 
+            text-align: center; 
+            margin-bottom: 8px; 
+            font-size: 22px; 
+        }
+        
+        .desc { 
+            color: #666666; 
+            text-align: center; 
+            font-size: 14px; 
+            margin-bottom: 24px; 
+        }
+
+        /* チェックリスト */
+        .checklist { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+        
+        .check-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 16px; 
+            background: #f8f9fa; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: #333333; 
+            cursor: pointer;
+            border: 1px solid #e9ecef;
+            transition: background-color 0.2s;
+        }
+        
+        .check-item:active {
+            background-color: #f0f0f0;
+        }
+
+        .check-item input { 
+            transform: scale(1.5); 
+            margin-right: 15px; 
+            accent-color: #1e90ff; 
+        }
+        
+        /* ステータス・進捗 */
+        #status-msg { 
+            text-align: center; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            min-height: 24px; 
+            font-size: 14px; 
+        }
+
+        .progress-area { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #e9ecef; 
+        }
+        
+        .progress-text { 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            text-align: right; 
+            color: #555555; 
+        }
+        
+        .progress-bar-bg { 
+            width: 100%; 
+            background: #e0e0e0; 
+            border-radius: 10px; 
+            height: 8px; 
+            overflow: hidden; 
+        }
+        
+        .progress-bar-fill { 
+            height: 100%; 
+            background: #1e90ff; 
+            width: 0%; 
+            transition: width 0.3s ease; 
+        }
+
+        /* 追加のメッセージ枠（赤） */
+        .notice-red {
+            background: #fff5f5;
+            border: 1px solid #ffcccc;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 15px;
+            color: #d9534f;
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* 追加のメッセージ枠（青） */
+        .message-blue {
+            background: #f0f8ff;
+            border: 1px solid #bce8f1;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 20px;
+            color: #1e90ff;
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* リセットボタン */
+        .btn-reset { 
+            width: 100%; 
+            background: #b22222; 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-bottom: 15px;
+        }
+        
+        .btn-reset:active { 
+            background: #8b0000; 
+        }
+
+        .footer { 
+            text-align: center; 
+            font-size: 11px; 
+            color: #aaaaaa; 
+            margin-top: 15px; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>通信退勤前チェックリスト</h1>
+    <p class="desc">確認しながら退勤前業務を行ってください</p>
+
+    <div class="checklist">
+        <label class="check-item"><input type="checkbox" class="cb" value="c1"> POS締め</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c2"> 端末在庫カウント</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c3"> デモモニター電源OFF</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c4"> カウンター片付け</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c5"> カウンター写真共有</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c6"> 5S確認(飲み物や忘れ物に注意)</label>
+        <label class="check-item"><input type="checkbox" class="cb" value="c7"> キャビ鍵閉め</label>
+    </div>
+    
+    <div class="progress-area">
+        <div class="progress-text">進捗: <span id="percent">0</span>%</div>
+        <div class="progress-bar-bg"><div id="bar" class="progress-bar-fill"></div></div>
+    </div>
+
+    <div id="status-msg"></div>
+
+    <!-- 赤色の注意書き枠 -->
+    <div class="notice-red">
+        座席にトレーや端末の置きっぱなしはありませんか？<br>
+        貸出の共用iPadは事務所に必ず戻してください
+    </div>
+
+    <!-- 青色のメッセージ枠 -->
+    <div class="message-blue">
+        今日も一日お疲れ様でした！！<br>
+        打刻と手荷物チェックも忘れないように
+    </div>
+
+    <button class="btn-reset" onclick="resetChecks()">チェックをクリア</button>
+
+    <div class="footer">西台店 染谷作成</div>
+</div>
+
+<script>
+    const checkboxes = document.querySelectorAll('.cb');
+    const percentSpan = document.getElementById('percent');
+    const bar = document.getElementById('bar');
+    const statusMsg = document.getElementById('status-msg');
+    
+    const STORAGE_KEY = 'communication_closing_checklist_v3';
+
+    // 状態の復元
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            checkboxes.forEach(cb => {
+                if (data[cb.value] !== undefined) {
+                    cb.checked = data[cb.value];
+                }
+            });
+        }
+        updateProgress();
+    }
+
+    // 状態の保存
+    function saveState() {
+        const data = {};
+        checkboxes.forEach(cb => {
+            data[cb.value] = cb.checked;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        updateProgress();
+    }
+
+    // 進捗状況の更新
+    function updateProgress() {
+        const total = checkboxes.length;
+        const checkedCount = document.querySelectorAll('.cb:checked').length;
+        const percent = Math.floor((checkedCount / total) * 100);
+        
+        percentSpan.innerText = percent;
+        bar.style.width = percent + '%';
+
+        if (checkedCount === 0) {
+            statusMsg.innerText = "";
+        } else if (checkedCount < total) {
+            statusMsg.innerText = "未完了の項目があります";
+            statusMsg.style.color = "#d9534f";
+        } else {
+            statusMsg.innerText = "すべてのチェックが完了しました！お疲れ様です！";
+            statusMsg.style.color = "#1e90ff";
+        }
+    }
+
+    // チェック変更時のイベント
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', saveState);
+    });
+
+    // クリアボタン
+    function resetChecks() {
+        if (confirm("チェックをすべてクリアしますか？")) {
+            checkboxes.forEach(cb => cb.checked = false);
+            localStorage.removeItem(STORAGE_KEY);
+            updateProgress();
+            window.scrollTo(0,0);
+        }
+    }
+
+    // 読み込み時に実行
+    window.onload = loadState;
+</script>
+
+</body>
+</html>
